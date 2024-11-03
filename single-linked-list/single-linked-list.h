@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <string>
 #include <iterator>
@@ -72,6 +73,7 @@ class SingleLinkedList {
         }
 
         BasicIterator& operator++() noexcept {
+            assert(this->node_ != nullptr && "Attempting to increment past the end of the list");
             this->node_ = this->node_->next_node;
             return *this;
         }
@@ -84,11 +86,11 @@ class SingleLinkedList {
         }
 
         [[nodiscard]] reference operator*() const noexcept {
-            
+            assert(this->node_ != nullptr && "Dereferencing a null iterator");
             return node_->value;
         }
         [[nodiscard]] pointer operator->() const noexcept {
-            
+            assert(this->node_ != nullptr && "Accessing a member of a null iterator");
             return &node_->value;
         }
     
@@ -252,6 +254,7 @@ public:
      */
     Iterator InsertAfter(ConstIterator pos, const Type& value) {
         // Если вставляем новый узел не на первое место в списке
+        assert(this->before_begin() != Iterator(nullptr) && "Iterator is null; Does not point to a list element");
         if (pos != this->before_begin()) {
             auto start_it = this->begin(); // Первый элемент списка итератор
             Node* current = this->head_.next_node;
@@ -289,11 +292,12 @@ public:
 
 
     void PopFront() noexcept {
-        
-        Node* to_delete = head_.next_node;
-        head_.next_node = to_delete->next_node;
-        delete to_delete;
-        --size_;
+        if (!this->IsEmpty()) {
+            Node* to_delete = head_.next_node;
+            head_.next_node = to_delete->next_node;
+            delete to_delete;
+            --size_;
+        }
     }
 
     /*
@@ -303,6 +307,7 @@ public:
     Iterator EraseAfter(ConstIterator pos) noexcept {
         
         // Если удаляем узел не на первом место в списке
+        assert(this->before_begin() != Iterator(nullptr) && "Iterator is null; Does not point to a list element");
         if (pos != this->before_begin()) {
             // Первый элемент списка итератор
             auto start_it = this->begin();
